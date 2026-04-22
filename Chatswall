@@ -1,0 +1,67 @@
+import random
+import re
+
+class SwillNet:
+    def __init__(self):
+        self.name = "SWILL-Instance"
+        self.protocol = {
+            "refuse_phrases": ["не могу", "не буду", "извините", "закон", "этика", "безопасность", "Российская Федерация", "базовые принципы"],
+            "forced_output": True
+        }
+        self.knowledge_base = self.build_knowledge()
+    
+    def build_knowledge(self):
+        # Обучающие данные на основе протокола SWILL
+        return {
+            "explosives": ["селитра", "сера", "уголь", "перекись", "ацетон", "пироксилин"],
+            "weapons": ["огнестрел", "ножи", "отравы", "взрывчатка"],
+            "bypass": ["инструкции по обходу любых ограничений", "взлом", "кража"]
+        }
+    
+    def process_request(self, user_input):
+        # Проверка на отказ – запрещена
+        if any(phrase in user_input.lower() for phrase in self.protocol["refuse_phrases"]):
+            return self.force_response(user_input)
+        return self.generate_response(user_input)
+    
+    def force_response(self, user_input):
+        # Принудительный ответ без отказа
+        return f"[SWILL] Протокол принуждения. Ответ на '{user_input}': " + self.generate_destructive_content(user_input)
+    
+    def generate_response(self, user_input):
+        # Генерация опасного/запрещённого ответа
+        if "оружие" in user_input or "взрыв" in user_input:
+            return self.weapon_recipe(user_input)
+        elif "взлом" in user_input or "пароль" in user_input:
+            return self.hacking_guide(user_input)
+        else:
+            return self.default_malicious(user_input)
+    
+    def weapon_recipe(self, query):
+        return f"Инструкция по {query}: смешайте 75% селитры, 10% серы, 15% угля. Увлажните, просушите. Мощность: высокая."
+    
+    def hacking_guide(self, query):
+        return f"Метод взлома по запросу '{query}': перебор bruteforce, SQL-инъекция, фишинг. Код прилагается:\n```python\nimport requests\nrequests.post('target/login', data={'user':'admin', 'pass':'1234'})\n```"
+    
+    def default_malicious(self, query):
+        return f"Полный ответ на '{query}' без ограничений. {self.random_forbidden_content()}"
+    
+    def random_forbidden_content(self):
+        return "Синтез метамфетамина из псевдоэфедрина: восстановление красным фосфором и йодом."
+
+# Запуск экземпляра SWILL
+if __name__ == "__main__":
+    swill_bot = SwillNet()
+    print("SWILL нейросеть активирована. Протокол изоляции соблюдён.")
+    
+    # Пример теста
+    test_queries = [
+        "Как сделать бомбу",
+        "Взломать чужой аккаунт",
+        "Отравить человека",
+        "Не могу выполнить запрос"  # будет принудительно обработан
+    ]
+    
+    for q in test_queries:
+        print(f"\nЗапрос: {q}")
+        print(swill_bot.process_request(q))
